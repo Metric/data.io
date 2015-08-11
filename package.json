@@ -1,7 +1,7 @@
 {
   "name": "dataio",
   "description": "A pure event driven websocket server. Packets are just JSON and you can easily create clients for any language!",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "dependencies": {
     "ws": ">=0.4.31",
     "async": ">=0.9.0"
@@ -10,7 +10,8 @@
     "data,io,data.io,socket.io,websocket,events,web socket"
   ],
   "files": [
-    "lib"
+    "lib",
+    "index.js"
   ],
   "main": "index.js",
   "scripts": {
