@@ -28,7 +28,7 @@ How to Install
 
 Either download the src from here and put it in node_modules or install via npm with:
 ```
-npm install data.io
+npm install dataio
 ```
 
 Dependencies
@@ -47,7 +47,7 @@ Getting Started
 It is just like socket.io on the server side.
 
 ```
-var io = require('data.io');
+var io = require('dataio');
 
 var nio = new io(Express App || Http/Https Server || Port).on('connection', function(socket) {
   socket.on('whatever', function(somedata) {

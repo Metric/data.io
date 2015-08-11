@@ -1,5 +1,5 @@
 {
-  "name": "data.io",
+  "name": "dataio",
   "description": "A pure event driven websocket server. Packets are just JSON and you can easily create clients for any language!",
   "version": "0.1.0",
   "dependencies": {
