@@ -28,7 +28,7 @@ How to Install
 
 Either download the src from here and put it in node_modules or install via npm with:
 ```
-npm install Data.io
+npm install data.io
 ```
 
 Dependencies
