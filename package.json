@@ -6,7 +6,24 @@
     "ws": ">=0.4.31",
     "async": ">=0.9.0"
   },
-  "keywords": "data,io,data.io,socket.io,websocket,events,web socket",
-  "files": ["lib"],
-  "main": "index.js"
+  "keywords": [
+    "data,io,data.io,socket.io,websocket,events,web socket"
+  ],
+  "files": [
+    "lib"
+  ],
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Metric/data.io"
+  },
+  "author": "Aaron Klick <aaronklick@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Metric/data.io/issues"
+  },
+  "homepage": "https://github.com/Metric/data.io"
 }
