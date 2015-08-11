@@ -47,7 +47,7 @@ Getting Started
 It is just like socket.io on the server side.
 
 ```
-var io = require('Data.io');
+var io = require('data.io');
 
 var nio = new io(Express App || Http/Https Server || Port).on('connection', function(socket) {
   socket.on('whatever', function(somedata) {
