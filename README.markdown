@@ -3,7 +3,7 @@ Data.io
 
 No nonsense pure event driven websocket server. With a simple data packet format that uses JSON. It is easy to create a client for any language, way easier than socket.io. You can find some pre-built ones https://github.com/metric/data.io.clients
 
-Does not handle binary data. If you want to send binary, either base64 encode it or make sure the bytes are in a regular JavaScript Array object.
+If you want to send binary, either base64 encode it or make sure the bytes are in a regular JavaScript Array object.
 
 Does not queue emissions if not connected. If not connected then nothing is sent and it is ignored.
 
@@ -49,7 +49,7 @@ It is just like socket.io on the server side.
 ```
 var io = require('dataio');
 
-var nio = new io(Express App || Http/Https Server || Port).on('connection', function(socket) {
+var nio = new io(Http/Https Server || Port).on('connection', function(socket) {
   socket.on('whatever', function(somedata) {
     //do whatever
     socket.emit('whatever', somedata);
@@ -118,7 +118,7 @@ socket.once('someEvent', function(somedata) {
 
 Determining if the socket is still connected:
 ```
-if(socket.connected) {
+if(socket.connected()) {
   //do something
 }
 ```
@@ -128,3 +128,11 @@ Common Socket Events
 
 1. close - emitted when the socket closes
 2. error - emitted when there is an error. An error object is the only thing passed through as an argument
+
+
+Changes Since Last Build
+=========================
+* Fixed a memory leak issue.
+* Socket.connected is now a function and must be called: .connected(). It returns a boolean value.
+* When in an anon function callback of a socket event. The this keyword now corresponds to the actual socket object.
+

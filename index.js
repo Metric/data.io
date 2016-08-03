@@ -6,11 +6,11 @@ var http = require('http');
 var https = require('https');
 
 var DataIO = function() {
-  this.server = null;
   this.sockets = [];
-  this.emitter = new events.EventEmitter();
   this.init.apply(this, arguments);
 };
+
+DataIO.prototype = Object.create(events.EventEmitter.prototype);
 
 //The only event that is ever emitted from DataIO main is: connection, for
 //when a new socket client connects
@@ -41,20 +41,14 @@ DataIO.prototype.init = function(uri) {
         _this.sockets.splice(_this.sockets.indexOf(this), 1);
     });
 
-    _this.emitter.emit('connection', socket);
+    _this._emit('connection', socket);
   });
 
   return this;
 };
 
-// subscribe to an event
-DataIO.prototype.on = function(event, cb) {
-  this.emitter.on(event, cb);
-
-  return this;
-};
-
 // emit the event and data to all connected sockets
+DataIO.prototype._emit = DataIO.prototype.emit;
 DataIO.prototype.emit = function() {
   var _this = this;
   var args = Array.prototype.slice.apply(arguments);
