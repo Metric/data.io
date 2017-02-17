@@ -50,11 +50,17 @@ It is just like socket.io on the server side.
 const io = require('dataio');
 
 const nio = new io(Http/Https Server || Port).on('connection', (socket) => {
-  socket.on('whatever', (somedata) => {
+  socket.on('whatever', function(somedata) {
     //this refers to the socket
     //if the function was not wrapped with .bind
     this.emit('whatever', somedata);
   });
+});
+```
+What if I don't want this to refer to the socket? Use a arrow pointer instead of a function.
+```
+socket.on('whatever', (someData) => {
+  
 });
 ```
 
