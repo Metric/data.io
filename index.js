@@ -34,9 +34,11 @@ class DataIO extends EventEmitter {
             console.log('socket connected');
             
             var socket = new Socket(ws);
-            _this.sockets.push(socket);
+            this.sockets.push(socket);
 
-            socket.on('close', () => {
+            //not using arrow pointer in order to have 
+            //a bound this wrapped into it
+            socket.on('close', function() {
                 var idx = _this.sockets.indexOf(this);
 
                 if(idx > -1) {
@@ -45,19 +47,15 @@ class DataIO extends EventEmitter {
                 }
             });
 
-            _this._emit('connection', socket);
+            this._emit('connection', socket);
         });
     }
 
-    _emit() {
-        var args = Array.prototype.slice.apply(arguments);
+    _emit(...args) {
         super.emit.apply(this, args);
     }
 
-    emit() {
-        const _this = this;
-        var args = Array.prototype.slice.apply(arguments);
-
+    emit(...args) {
         async.each(this.sockets, (socket, cb) => {
             socket.emit.apply(socket, args);
             cb();
