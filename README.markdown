@@ -16,7 +16,7 @@ I got tired of dealing with Socket.io and the fact it was so fucking complicated
 How simple is the JSON packet? See for yourself
 ```
 {
-  "event": "EventName",
+  "name": "EventName",
   "data": [...]
 }
 ```
@@ -47,12 +47,13 @@ Getting Started
 It is just like socket.io on the server side.
 
 ```
-var io = require('dataio');
+const io = require('dataio');
 
-var nio = new io(Http/Https Server || Port).on('connection', function(socket) {
-  socket.on('whatever', function(somedata) {
-    //do whatever
-    socket.emit('whatever', somedata);
+const nio = new io(Http/Https Server || Port).on('connection', (socket) => {
+  socket.on('whatever', (somedata) => {
+    //this refers to the socket
+    //if the function was not wrapped with .bind
+    this.emit('whatever', somedata);
   });
 });
 ```
@@ -85,23 +86,19 @@ socket.removeListener('event', originalCallbackFunction);
 ```
 A more complete example of the above:
 ```
-function MyClass(socket) {
-  this.socket = socket;
-
-  this.init = function() {
+class MyClass {
+  constructor(socket) {
+    this.socket = socket;
     this.boundOnSomething = this.onSomething.bind(this);
-
     this.socket.on('something', this.boundOnSomething);
-  };
+  }
 
-  this.onSomething = function(data) {
-    ///do whatever
+  onSomething(data) {
+    //since this function was wrapped with .bind
+    //this refers to MyClass object
     this.socket.emit('something', data);
-    //Unsubscribe but with the boundOnSomething
     this.socket.removeListener('something', this.boundOnSomething);
-  };
-
-  this.init.call(this);
+  }
 }
 
 var myclass = new MyClass(someSocket);
@@ -109,7 +106,7 @@ var myclass = new MyClass(someSocket);
 
 Subscribing to a socket event only once:
 ```
-socket.once('someEvent', function(somedata) {
+socket.once('someEvent', (somedata) => {
   //this event handler will only be called once
   //and then it will be removed automatically
   //do something...
@@ -123,16 +120,39 @@ if(socket.connected()) {
 }
 ```
 
+Accessing the Socket Class
+===========================
+```
+const Socket = require('dataio').Socket;
+```
+
+Creating a Socket to Connect to a URI
+======================================
+```
+const Socket = require('dataio').Socket;
+
+//use the helper function of the Socket class
+//otherwise you would need to use ws to create a socket first
+//then pass it to a new Socket(ws). This handles that for you.
+const mySocket = Socket.create('wss://someplaceontheweb');
+mySocket.on('connect', () => {
+  //socket is now ready for sending data
+});
+```
+
 Common Socket Events
 =======================
 
 1. close - emitted when the socket closes
 2. error - emitted when there is an error. An error object is the only thing passed through as an argument
+3. connect - emitted when the socket is connected and ready to send and receive.
 
 
 Changes Since Last Build
 =========================
-* Fixed a memory leak issue.
-* Socket.connected is now a function and must be called: .connected(). It returns a boolean value.
-* When in an anon function callback of a socket event. The this keyword now corresponds to the actual socket object.
+* Rewritten to ECMA6 standards
+* Added easier access to the individual Socket class
+* Socket.create('wss://uri'): a helper function for creating a new individual socket for connecting to another uri.
+* Added the 'connect' event for individual sockets
+* Packet format in readme was incorrect due to the changes to support C#. E.g. could not use the word 'event' in C# Class for JSON formatting as it is a keyword. Thus 'name' is used instead.
 

@@ -1,66 +1,74 @@
-var events = require('events');
-var wss = require('ws').Server;
-var async = require('async');
-var Socket = require('./lib/Socket');
-var http = require('http');
-var https = require('https');
+'use strict'
 
-var DataIO = function() {
-  this.sockets = [];
-  this.init.apply(this, arguments);
-};
+const EventEmitter = require('events').EventEmitter;
+const WSS = require('ws').Server;
+const async = require('async');
+const Socket = require('./lib/socket');
 
-DataIO.prototype = Object.create(events.EventEmitter.prototype);
+class DataIO extends EventEmitter {
+    constructor(uri) {
+        super();
 
-//The only event that is ever emitted from DataIO main is: connection, for
-//when a new socket client connects
-//all other events are handled by the socket itself.
-DataIO.prototype.init = function(uri) {
-  var _this = this;
-  if(typeof uri == 'string') {
-    this.wss = new wss({host: uri});
-  }
-  else if(typeof uri == 'number') {
-    //this is a port
-    //use default host
-    this.wss = new wss({port: uri});
-  }
-  else if(typeof uri == 'object') {
-    //then it must be an Express.js server / http server / https server
-    this.wss = new wss({server: uri});
-  }
-  else {
-    this.wss = new wss({port: 8080});
-  }
+        this.sockets = [];
+        this.wss = null;
+        this._init(uri);
+    }
 
-  this.wss.on('connection', function(ws) {
-    var socket = new Socket(ws);
-    _this.sockets.push(socket);
+    _init(uri) {
+        const _this = this;
 
-    socket.on('close', function() {
-        _this.sockets.splice(_this.sockets.indexOf(this), 1);
-    });
+        if(typeof uri == 'string') {
+            this.wss = new WSS({host: uri});
+        }
+        else if(typeof uri == 'number') {
+            this.wss = new WSS({port: uri});
+        }
+        else if(typeof uri == 'object') {
+            this.wss = new WSS({server: uri});
+        }
+        else {
+            this.wss = new WSS({port: 8080});
+        }
 
-    _this._emit('connection', socket);
-  });
+        this.wss.on('connection', (ws) => {
+            console.log('socket connected');
+            
+            var socket = new Socket(ws);
+            _this.sockets.push(socket);
 
-  return this;
-};
+            socket.on('close', () => {
+                var idx = _this.sockets.indexOf(this);
 
-// emit the event and data to all connected sockets
-DataIO.prototype._emit = DataIO.prototype.emit;
-DataIO.prototype.emit = function() {
-  var _this = this;
-  var args = Array.prototype.slice.apply(arguments);
+                if(idx > -1) {
+                    console.log('socket closed');
+                    _this.sockets.splice(idx, 1);
+                }
+            });
 
-  async.each(this.sockets, function(socket, cb) {
-    socket.emit.apply(socket, args);
-    cb();
-  }, function(er) {
+            _this._emit('connection', socket);
+        });
+    }
 
-  });
+    _emit() {
+        var args = Array.prototype.slice.apply(arguments);
+        super.emit.apply(this, args);
+    }
 
-  return this;
-};
+    emit() {
+        const _this = this;
+        var args = Array.prototype.slice.apply(arguments);
+
+        async.each(this.sockets, (socket, cb) => {
+            socket.emit.apply(socket, args);
+            cb();
+        }, (er) => {
+            //do nothing
+        });
+
+        return this;
+    }
+}
+
+DataIO.Socket = Socket;
 
 module.exports = exports = DataIO;
