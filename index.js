@@ -6,9 +6,10 @@ const async = require('async');
 const Socket = require('./lib/socket');
 
 class DataIO extends EventEmitter {
-    constructor(uri) {
+    constructor(uri, behindProxy) {
         super();
 
+        this.proxy = behindProxy;
         this.sockets = [];
         this.wss = null;
         this._init(uri);
@@ -18,7 +19,7 @@ class DataIO extends EventEmitter {
         const _this = this;
 
         if(typeof uri == 'string') {
-            this.wss = new WSS({host: uri});
+            this.wss = new WSS({host: uri, port: 8080});
         }
         else if(typeof uri == 'number') {
             this.wss = new WSS({port: uri});
@@ -30,10 +31,19 @@ class DataIO extends EventEmitter {
             this.wss = new WSS({port: 8080});
         }
 
-        this.wss.on('connection', (ws) => {
+        this.wss.on('connection', (ws, req) => {
+            let ip = '';
+
+            if(this.proxy) {
+                ip = req.headers['x-forwarded-for'].split(/\s*,\s*/)[0];
+            }
+            else {
+                ip = req.connection.remoteAddress;
+            }
+
             console.log('socket connected');
             
-            var socket = new Socket(ws);
+            var socket = new Socket(ws,ip);
             this.sockets.push(socket);
 
             //not using arrow pointer in order to have 
