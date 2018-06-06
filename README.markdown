@@ -1,6 +1,13 @@
 Data.io
 ===============
 
+NEW
+-----
+* socket.connected is now a getter and not a function. Please update your code accordingly for this version
+* socket.remoteAddress is now available
+* Now accepts a second argument when creating the io server to tell that the server is behind a proxy like nginx. This way it can determine the remoteAddress properly.
+* Clients have been updated as well. Please review the new client changes at the client repo.
+
 No nonsense pure event driven websocket server. With a simple data packet format that uses JSON. It is easy to create a client for any language, way easier than socket.io. You can find some pre-built ones https://github.com/metric/data.io.clients
 
 If you want to send binary, either base64 encode it or make sure the bytes are in a regular JavaScript Array object.
@@ -49,7 +56,7 @@ It is just like socket.io on the server side.
 ```
 const io = require('dataio');
 
-const nio = new io(Http/Https Server || Port).on('connection', (socket) => {
+const nio = new io(Http/Https Server || Port, behindProxy (optional)).on('connection', (socket) => {
   socket.on('whatever', function(somedata) {
     //this refers to the socket
     //if the function was not wrapped with .bind
@@ -57,7 +64,7 @@ const nio = new io(Http/Https Server || Port).on('connection', (socket) => {
   });
 });
 ```
-What if I don't want this to refer to the socket? Use a arrow pointer instead of a function.
+What if I don't want this to refer to the socket? Use an arrow pointer instead of a function.
 ```
 socket.on('whatever', (someData) => {
   
@@ -107,7 +114,7 @@ class MyClass {
   }
 }
 
-var myclass = new MyClass(someSocket);
+const myclass = new MyClass(someSocket);
 ```
 
 Subscribing to a socket event only once:
@@ -121,10 +128,31 @@ socket.once('someEvent', (somedata) => {
 
 Determining if the socket is still connected:
 ```
-if(socket.connected()) {
+if(socket.connected) {
   //do something
 }
 ```
+
+Accessing the Remote IP
+=========================
+```
+socket.remoteAddress
+```
+
+If you are behind a proxy such as nginx and want to get a correct ip
+then you need to do the following when creating the server by setting the second
+argument to true. So that the server knows to pull from a header from nginx etc instead.
+
+```
+const nio = new io(Http/Https Server || Port, true /** behindProxy */).on('connection', (socket) => {
+  socket.on('whatever', function(somedata) {
+    //this refers to the socket
+    //if the function was not wrapped with .bind
+    this.emit('whatever', somedata);
+  });
+});
+```
+
 
 Accessing the Socket Class
 ===========================
